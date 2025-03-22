@@ -1,0 +1,34 @@
+import asyncio
+from playwright.async_api import async_playwright
+
+async def main():
+    async with async_playwright() as p:
+        # Launch Chromium browser
+        browser = await p.chromium.launch(headless=False)
+        page = await browser.new_page()
+
+        # Visit the target website
+        await page.goto("https://example.com")
+
+        # Waiting for the page to fully load
+        await page.wait_for_load_state("networkidle")
+
+        # Get the total height of the page
+        page_height = await page.evaluate("document.body.scrollHeight")
+
+        # Set viewport height
+        viewport_height = page.viewport_size["height"]
+
+        # Segment scrolling and screenshot
+        for i in range(0, page_height, viewport_height):
+            await page.evaluate(f"window.scrollTo(0, {i})")
+            await page.wait_for_timeout(500)  # Waiting for the content to load after scrolling
+
+        # Capture the complete page
+        await page.screenshot(path="full_page.png", full_page=True)
+
+        # Close Browser
+        await browser.close()
+
+# Run asynchronous tasks
+asyncio.run(main())
