@@ -1,1 +1,0 @@
-await page.screenshot(path="full_page.png", full_page=True)
